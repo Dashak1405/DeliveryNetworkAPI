@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32825.248
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeliveryNetworkAPI", "DeliveryNetworkAPI\DeliveryNetworkAPI.csproj", "{194DD537-11EC-4649-841F-AE13BE75F492}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeliveryNetworkAPITests", "DeliveryNetworkAPITests\DeliveryNetworkAPITests.csproj", "{7D66F607-23A5-4EAB-BA47-2AC03D56FFFB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{194DD537-11EC-4649-841F-AE13BE75F492}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{194DD537-11EC-4649-841F-AE13BE75F492}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{194DD537-11EC-4649-841F-AE13BE75F492}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{194DD537-11EC-4649-841F-AE13BE75F492}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D66F607-23A5-4EAB-BA47-2AC03D56FFFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D66F607-23A5-4EAB-BA47-2AC03D56FFFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D66F607-23A5-4EAB-BA47-2AC03D56FFFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D66F607-23A5-4EAB-BA47-2AC03D56FFFB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A44EC43A-03FB-4025-AFE3-4ED44807A9A6}
+	EndGlobalSection
+EndGlobal
