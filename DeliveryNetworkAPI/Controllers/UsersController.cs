@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Security.Claims;
 
 namespace DeliveryNetworkAPI.Controllers
@@ -63,16 +64,14 @@ namespace DeliveryNetworkAPI.Controllers
         {
             Users user = new Users();
             Persons person = new Persons();
-            var posts = _context.Posts.ToList();
-            var role = posts.Where(x => x.ID == Guid.Parse("719D0342-155A-4A70-BF59-3DD53AD9F58E")).ToList();
-            user.ID = Guid.NewGuid();
+            user.ID = Guid.NewGuid(); 
             user.Login = userRequest.login;
             user.Password = userRequest.password;
             person.ID = Guid.NewGuid();
             person.Name = userRequest.name;
             person.Surname = userRequest.surname;
             person.LastName = userRequest.lastname;
-            person.post = role[0];
+            person.post = _context.Posts.First(x => x.Post == Posts.ADMIN);
             person.PassportID = userRequest.passport;
             user.Person = person;
             await _context.Users.AddAsync(user);

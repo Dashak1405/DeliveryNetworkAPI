@@ -33,29 +33,24 @@ namespace DeliveryNetworkAPI.Controllers
                 .Include(x => x.Delivery)
                 .ToList();
             var products = _context.Products.ToList();
-            List<RequestOrders> orders1 = new List<RequestOrders>();
+            List<RequestOrders> reqOrders = new List<RequestOrders>();
             foreach (var order in orders)
             {
                 var product = _context.Products.FirstOrDefault(x => x.ID == order.Delivery.ProductID);
-                RequestOrders order1 = new RequestOrders();
-                order1.ID = order.ID;
-                /* Пример DRY 
-                 * Должно быть просто Person.getFullName();
-                 */
-                order1.Customer = order.Customer.UserID.Person.Surname + " "
-                    + order.Customer.UserID.Person.Name + " " + order.Customer.UserID.Person.LastName;  
-
-                order1.Address = order.Address;
-                order1.Products = order.allProducts;
-                order1.Status = order.Status.status;
+                RequestOrders reqOrder = new RequestOrders();
+                reqOrder.ID = order.ID;
+                reqOrder.Customer = order.Customer.UserID.Person.GetFullName();
+                reqOrder.Address = order.Address;
+                reqOrder.Products = order.allProducts;
+                reqOrder.Status = order.Status.status;
                 if (order.Executor != null)
                 {
-                    order1.Executor = order.Executor.Login;
+                    reqOrder.Executor = order.Executor.Login;
                 }
 
-                orders1.Add(order1);
+                reqOrders.Add(reqOrder);
             }
-            return Ok(orders1);
+            return Ok(reqOrders);
         }
 
         [HttpPost] 
@@ -131,13 +126,7 @@ namespace DeliveryNetworkAPI.Controllers
                 
                 RequestOrders order1 = new RequestOrders();
                 order1.ID = order.ID;
-                // Пример DRY.
-                // Создание ФИО желательно вынести в один метод ответсвуенного класса.
-                // Этот код повтоярется в программе от меса к месту
-            /* >>> */
-                order1.Customer = order.Customer.UserID.Person.Surname + " "
-                    + order.Customer.UserID.Person.Name + " " + order.Customer.UserID.Person.LastName;
-            /* <<< */
+                order1.Customer = order.Customer.UserID.Person.GetFullName();
                 order1.Address = order.Address;
                 order1.Products = order.allProducts;
                 if (order.Executor != null)
@@ -170,9 +159,8 @@ namespace DeliveryNetworkAPI.Controllers
             foreach (var order in orders)
             {
                 RequestOrders order1 = new RequestOrders();
-                order1.ID = order.ID;
-                order1.Customer = order.Customer.UserID.Person.Surname + " "
-                    + order.Customer.UserID.Person.Name + " " + order.Customer.UserID.Person.LastName;
+                order1.ID = order.ID; 
+                order1.Customer = order.Customer.UserID.Person.GetFullName();
                 order1.Address = order.Address;
                 order1.Products = order.allProducts;
                 if (order.Executor != null)

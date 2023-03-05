@@ -2,6 +2,9 @@
 {
     public class Persons
     {
+        public string GetFullName() {
+            return Surname + ' ' + Name + ' ' + LastName;
+        }
         public Guid ID { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
