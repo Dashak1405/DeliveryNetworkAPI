@@ -32,7 +32,7 @@ namespace DeliveryNetworkAPI.Controllers
                 {
                     Id = u.ID,
                     login = u.Login,
-                    fio = u.Person.Surname + " " + u.Person.Name + " " + u.Person.LastName,
+                    fio = u.Person.GetFullName(),
                     role = u.Person.post.Post
                 };
                 usersList.Add(user);
@@ -54,7 +54,7 @@ namespace DeliveryNetworkAPI.Controllers
 
             requestUser.Id = User.ID;
             requestUser.login = User.Login;
-            requestUser.fio = User.Person.Surname + " " + User.Person.Name + " " + User.Person.LastName;
+            requestUser.fio = User.Person.GetFullName();
             requestUser.role = User.Person.post.Post;
             return Ok(requestUser);
         }
@@ -71,7 +71,7 @@ namespace DeliveryNetworkAPI.Controllers
             person.Name = userRequest.name;
             person.Surname = userRequest.surname;
             person.LastName = userRequest.lastname;
-            person.post = _context.Posts.First(x => x.Post == Posts.ADMIN);
+            person.post = _context.Posts.First(x => x.Post == Posts.USER);
             person.PassportID = userRequest.passport;
             user.Person = person;
             await _context.Users.AddAsync(user);
@@ -97,19 +97,13 @@ namespace DeliveryNetworkAPI.Controllers
             {
                 return NotFound();
             }
-
             user.Login = userRequest.login;
-            string fio = userRequest.fio;
-
-            user.Person.Surname = fio.Substring(0, fio.IndexOf(' '));
-            string fio1 = fio.Remove(0, fio.IndexOf(' ') + 1);
-            user.Person.Name = fio1.Substring(0, fio1.IndexOf(' '));
-            string fio2 = fio1.Remove(0, fio1.IndexOf(' ') + 1);
-            user.Person.LastName = fio2;
-            var posts = _context.Posts.ToList();
-            var post = posts.Where(x => x.Post == userRequest.role).ToList();
-            user.Person.post = post[0];
-            
+            var person = user.Person;
+            var nameParts = userRequest.fio.Split(' ');
+            person.Surname  = nameParts[0];
+            person.Name     = nameParts[1];
+            person.LastName = nameParts[2];
+            person.post = _context.Posts.First(x => x.Post == userRequest.role);
             await _context.SaveChangesAsync();
 
             return Ok(user);

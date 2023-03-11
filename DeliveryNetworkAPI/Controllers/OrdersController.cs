@@ -30,7 +30,6 @@ namespace DeliveryNetworkAPI.Controllers
                 .ThenInclude(u => u.UserID.Person.post)
                 .Include(x => x.Delivery)
                 .Include(x => x.Executor.Person.post)
-                .Include(x => x.Delivery)
                 .ToList();
             var products = _context.Products.ToList();
             List<RequestOrders> reqOrders = new List<RequestOrders>();
@@ -107,7 +106,7 @@ namespace DeliveryNetworkAPI.Controllers
 
         [HttpGet] 
         [Route("{id:Guid}")]
-        public async Task<IActionResult> GetOrdersForUser([FromRoute]Guid id)
+        public async Task<IActionResult> GetOrdersForUser([FromRoute]Guid userId)
         {
             
             var orders = _context.Orders
@@ -118,7 +117,7 @@ namespace DeliveryNetworkAPI.Controllers
                 .Include(x => x.Delivery)
                 .Include(x => x.Executor.Person.post)
                 .Include(x => x.Delivery)
-                .Where(x => x.Customer.UserID.ID == id)
+                .Where(x => x.Customer.UserID.ID == userId)
                 .ToList();
             List<RequestOrders> orders1 = new List<RequestOrders>();
             foreach (var order in orders)
@@ -201,7 +200,6 @@ namespace DeliveryNetworkAPI.Controllers
                 .ThenInclude(u => u.UserID.Person.post)
                 .Include(x => x.Delivery)
                 .Include(x => x.Executor.Person.post)
-                .Include(x => x.Delivery)
                 .FirstOrDefaultAsync(x => x.ID == id);
 
             if (order == null)
@@ -229,9 +227,14 @@ namespace DeliveryNetworkAPI.Controllers
         public async Task<IActionResult> CompleteOrder([FromRoute] Guid id, RequestOrders requestOrders)
         {
      
-            var order = await _context.Orders.Include(x => x.Products).Include(x => x.Status).
-                Include(x => x.Customer).ThenInclude(u => u.UserID.Person.post).Include(x => x.Delivery).
-                Include(x => x.Executor.Person.post).Include(x => x.Delivery).FirstOrDefaultAsync(x => x.ID == id);
+            var order = await _context.Orders
+                .Include(x => x.Products)
+                .Include(x => x.Status)
+                .Include(x => x.Customer)
+                .ThenInclude(u => u.UserID.Person.post)
+                .Include(x => x.Delivery)
+                .Include(x => x.Executor.Person.post)
+                .FirstOrDefaultAsync(x => x.ID == id);
 
             if (order == null)
             {
