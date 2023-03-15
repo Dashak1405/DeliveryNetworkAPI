@@ -38,7 +38,6 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         public void Initialize() {
             _ctx = DBContextMockHelper.InitDbContextWithPosts();
 
-            // Удостовериться, что должности добавились
             var posts = _ctx.Posts.ToList();
             Assert.AreEqual(3, posts.Count());
             Assert.AreEqual("user", posts[0].Post);
@@ -50,18 +49,15 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task SuccesfullyAddTwoUsers_ReturnCreated201Code_AsyncTest()
         {
-            // Arrangment
             
             var userController = new UsersController(_ctx);
            
-            // Act
             var result1 = await userController.AddUser(_creatingUsers[0]);
             var actualResult1 = result1 as CreatedResult;
             var result2 = await userController.AddUser(_creatingUsers[1]);
             var actualResult2 = result2 as CreatedResult;
 
 
-            // Asserts
             Assert.AreEqual(2, _ctx.Users.Count());
 
             Assert.IsNotNull(actualResult1);
@@ -76,16 +72,13 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task FailAddSimilarUser_ReturnConflict409Code_AsyncTest()
         {
-            // Arrangment
             var userController = new UsersController(_ctx);
             await userController.AddUser(_creatingUsers[0]);
             await userController.AddUser(_creatingUsers[1]);
 
-            // Act
             var result1 = await userController.AddUser(_creatingUsers[0]);
             var actualResult1 = result1 as ConflictResult;
 
-            // Asserts
             Assert.AreEqual(2, _ctx.Users.Count());
             Assert.IsNotNull(actualResult1);
             Assert.AreEqual(409, actualResult1.StatusCode);
@@ -94,10 +87,8 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task SuccesfullyGetAllZeroUsers_ReturnOk200Code_AsyncTest()
         {
-            // Arrangment
             var userController = new UsersController(_ctx);
 
-            // Act
             var result = await userController.GetAllUsers();
             var actualResult = result as OkObjectResult;
             var value = actualResult.Value as List<RequestUsers>;
@@ -110,15 +101,12 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task SuccesfullyGetAllTwoUsers_ReturnOk200Code_AsyncTest()
         {
-            // Arrangment
             var userController = new UsersController(_ctx);
             await userController.AddUser(_creatingUsers[0]);
             await userController.AddUser(_creatingUsers[1]);
 
-            // Act
             var result = await userController.GetAllUsers();
 
-            // Asserts
             var actualResult = result as OkObjectResult;
             Assert.IsNotNull(actualResult);
             var value = actualResult.Value as List<RequestUsers>;
@@ -130,16 +118,13 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task SuccesfullyGetExistingUser_ReturnOk200Code_AsyncTest()
         {
-            // Arrangment
             var userController = new UsersController(_ctx);
             await userController.AddUser(_creatingUsers[0]);
             var user = _ctx.Users.ToList()[0];
-            // Act
             var result = await userController.GetEditUser(user.ID);
             var actualResult = result as OkObjectResult;
             var value = actualResult.Value as RequestUsers;
 
-            // Asserts
             Assert.IsNotNull(actualResult);
             Assert.AreEqual(200, actualResult.StatusCode);
             Assert.AreEqual(user.ID.ToString(), value.Id.ToString());
@@ -150,15 +135,13 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task FialGettingNotExistingUser_ReturnNotFound404Code_AsyncTest()
         {
-            // Arrangment
             var userController = new UsersController(_ctx);
             await userController.AddUser(_creatingUsers[0]);
             await userController.AddUser(_creatingUsers[1]);
-            // Act
+
             var result = await userController.GetEditUser(Guid.Empty);
             var actualResult = result as NotFoundResult;
-            
-            // Asserts
+
             Assert.IsNotNull(actualResult);
             Assert.AreEqual(404, actualResult.StatusCode);
         }
@@ -166,7 +149,6 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task SuccesfullyUpdateAllowedFieldOfExistingUser_ReturnOk200Code_AsyncTest()
         {
-           // Arrangment
             var userController = new UsersController(_ctx);
             await userController.AddUser(_creatingUsers[0]);
             var user = _ctx.Users.First();
@@ -174,11 +156,9 @@ namespace DeliveryNetworkAPI.Controllers.Tests
             Assert.AreEqual("log1", user.Login);
 
             var reqUser = new RequestUsers { fio ="A B C", Id = user.ID, login="changedLogin", role="admin" };
-            // Act
             var result = await userController.UpdateUser(user.ID, reqUser);
             var actualResult = result as OkObjectResult;
             
-            // Asserts
             Assert.IsNotNull(actualResult);
             Assert.AreEqual(200, actualResult.StatusCode);
             Assert.AreEqual(user.Person.post.Post, reqUser.role);
@@ -191,7 +171,6 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task WillNotUpdateNotChangeableFieldsOfExsistingUser_ReturnOk200Code_AsyncTestAsync()
         {
-            // Arrangment
             var userController = new UsersController(_ctx);
             await userController.AddUser(_creatingUsers[0]);
             var user = _ctx.Users.First();
@@ -199,12 +178,10 @@ namespace DeliveryNetworkAPI.Controllers.Tests
             Assert.AreEqual("log1", user.Login);
             var fio = String.Join(' ', new String[3] { user.Person.Surname, user.Person.Name, user.Person.LastName });
             var reqUser = new RequestUsers { fio = fio, Id = Guid.NewGuid(), login = user.Login, role = user.Person.post.Post };
-            
-            // Act
+
             var result = await userController.UpdateUser(user.ID, reqUser);
             var actualResult = result as OkObjectResult;
 
-            // Asserts
             Assert.IsNotNull(actualResult);
             Assert.AreEqual(200, actualResult.StatusCode);
             Assert.IsTrue(oldGuid.Equals(user.ID));
@@ -237,14 +214,11 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task FailUpdateNotExistingUser_ReturnNotFound404Code_AsyncTestAsync()
         {
-            // Arrangment
             var userController = new UsersController(_ctx);
             var reqUser = new RequestUsers { fio = "A B C", Id = Guid.NewGuid(), login = "changedLogin", role = "admin" };
-            // Act
             var result = await userController.UpdateUser(Guid.Empty, reqUser);
             var actualResult = result as NotFoundResult;
 
-            // Asserts
             Assert.IsNotNull(actualResult);
             Assert.AreEqual(404, actualResult.StatusCode);
             Assert.AreEqual(0, _ctx.Users.Count());
@@ -253,26 +227,21 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task SuccesfullyDeleteUser_ReturnOk200Code_AsyncTestAsync()
         {
-             // Arrangment
             var userController = new UsersController(_ctx);
             await userController.AddUser(_creatingUsers[0]);
             await userController.AddUser(_creatingUsers[1]);
             var users = _ctx.Users.ToList();
-            
-            // Act 1
+
             var result1 = await userController.DeleteUser(users[0].ID);
             var actualResult1 = result1 as OkObjectResult;
             
-            // Asserts 1
             Assert.IsNotNull(actualResult1);
             Assert.AreEqual(200, actualResult1.StatusCode);
             Assert.AreEqual(1, _ctx.Users.Count());
 
-            // Act 2
             var result2 = await userController.DeleteUser(users[1].ID);
             var actualResult2 = result1 as OkObjectResult;
             
-            // Asserts 2
             Assert.IsNotNull(actualResult2);
             Assert.AreEqual(200, actualResult2.StatusCode);
             Assert.AreEqual(0, _ctx.Users.Count());
@@ -281,16 +250,13 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task FailDeleteNotExistingUser_ReturnNotFound404Code_AsyncTestAsync()
         {
-            // Arrangment
             var userController = new UsersController(_ctx);
             await userController.AddUser(_creatingUsers[0]);
             await userController.AddUser(_creatingUsers[1]);
 
-            // Act 
             var result1 = await userController.DeleteUser(Guid.Empty);
             var actualResult1 = result1 as NotFoundResult;
 
-            // Asserts 
             Assert.IsNotNull(actualResult1);
             Assert.AreEqual(404, actualResult1.StatusCode);
             Assert.AreEqual(2, _ctx.Users.Count());
