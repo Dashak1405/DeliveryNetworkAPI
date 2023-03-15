@@ -51,14 +51,12 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         {
             _ctx = DBContextMockHelper.InitDbContextWithPosts();
 
-            // Удостовериться, что должности добавились
             var posts = _ctx.Posts.ToList();
             Assert.AreEqual(3, posts.Count());
             Assert.AreEqual("user", posts[0].Post);
             Assert.AreEqual("admin", posts[1].Post);
             Assert.AreEqual("deliveryman", posts[2].Post);
 
-            // Добавление пользователей
             var userController = new UsersController(_ctx);
             await userController.AddUser(_creatingUsers[0]);
             await userController.AddUser(_creatingUsers[1]);
@@ -67,7 +65,7 @@ namespace DeliveryNetworkAPI.Controllers.Tests
 
             var users = _ctx.Users.ToList();
             Assert.IsNotNull(users);
-            // Изменить на админа
+
             var admin = users[1];
             var adminReq = new RequestUsers
             {
@@ -77,7 +75,6 @@ namespace DeliveryNetworkAPI.Controllers.Tests
                 fio = MakePersonFullName(admin.Person)
             };
             await userController.UpdateUser(admin.ID, adminReq);
-            // Изменить на доставщика
             var deliveryman = users[2];
             var deliverymanReq = new RequestUsers
             {
@@ -94,17 +91,14 @@ namespace DeliveryNetworkAPI.Controllers.Tests
                 new Products { ID =  Guid.NewGuid(), Count = 20, ProductName =  "Product 3", Manufactor = _manufactors[2] },
             };
 
-            // Добавление произвеодителя
             _ctx.Manufactors.Add(_manufactors[0]);
             _ctx.Manufactors.Add(_manufactors[1]);
             _ctx.Manufactors.Add(_manufactors[2]);
 
-            // Добавление продуктов
             _ctx.Products.Add(_products[0]);
             _ctx.Products.Add(_products[1]);
             _ctx.Products.Add(_products[2]);
 
-            // Добавить статусы заказов
             _ctx.Status.Add(_statuses[0]);
             _ctx.Status.Add(_statuses[1]);
             _ctx.Status.Add(_statuses[2]);
@@ -113,26 +107,10 @@ namespace DeliveryNetworkAPI.Controllers.Tests
             _ctx.SaveChanges();
         }
 
-
-
-        /* Тестируемое поведение
-         * + Успешно добавить заказ
-         * + Провалить добавление заказа при ошибочных данных
-         * - Успешно запрещает добавлять несуществующий продукт
-         * - Успешно добавить исполнителя к заказу
-         * - Провалить добавление исполнителя без роли доставщика
-         * - Успешно получить список всех заказов
-         * - Успешно получить список для заказчика
-         * - Успешно получить список для доставщика
-         * - Успешно завершить выполнение заказа 
-         */
-
-        // Можно заменить поведение на ожидание возврата Created 201
         [TestMethod()]
         public async Task SuccessfulyAddOrderForAuthorizedUser_ReturnOk200Code()
         {
 
-            // Подготовка
             var createOrder = new CreateOrderClass
             {
                 address = "Addres 1",
@@ -145,10 +123,8 @@ namespace DeliveryNetworkAPI.Controllers.Tests
             };
             var orderController = new OrdersController(_ctx);
             var dateStart = DateTime.Now;
-            // Действие
             var result = await orderController.AddOrder(createOrder);
 
-            // Утверждения
             var actualResult = result as OkObjectResult;
             Assert.IsNotNull(actualResult);
             var order = actualResult.Value as Orders;
@@ -175,10 +151,7 @@ namespace DeliveryNetworkAPI.Controllers.Tests
                 executor = ""
             };
             var orderController = new OrdersController(_ctx);
-            // Действие
             var result = await orderController.AddOrder(createOrder);
-
-            // Утверждения
             var actualResult = result as ForbidResult;
             Assert.IsNotNull(actualResult);
         }
@@ -187,7 +160,6 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         public async Task FailedAddOrderForNotExistentsUser_ReturnForbidden403Code()
         {
 
-            // Подготовка
             var createOrder = new CreateOrderClass
             {
                 address = "Addres 1",
@@ -199,10 +171,7 @@ namespace DeliveryNetworkAPI.Controllers.Tests
                 executor = ""
             };
             var orderController = new OrdersController(_ctx);
-            // Действие
             var result = await orderController.AddOrder(createOrder);
-
-            // Утверждения
             var actualResult = result as ForbidResult;
             Assert.IsNotNull(actualResult);
         }
@@ -210,7 +179,6 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task SuccessfullyListAllOrders_ReturnOk200CodeWithList()
         {
-            // Подготовка
             var createOrders = new List<CreateOrderClass>
             {
                 new CreateOrderClass
@@ -250,11 +218,9 @@ namespace DeliveryNetworkAPI.Controllers.Tests
             foreach (var createOrder in createOrders) {
                 await orderController.AddOrder(createOrder);
             }
-            // Действие
 
             var result = await orderController.GetAllOrders();
 
-            // Утверждения
             var actualResult = result as OkObjectResult;
             Assert.IsNotNull(actualResult);
             var orederResultlist = actualResult.Value as List<RequestOrders>;
@@ -271,7 +237,6 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task SuccessfullyListOrdersOfUser_ReturnOk200CodeWithList()
         {
-            // Подготовка
             var createOrders = new List<CreateOrderClass>
             {
                 new CreateOrderClass
@@ -310,11 +275,9 @@ namespace DeliveryNetworkAPI.Controllers.Tests
             Assert.IsNotNull(user);
             await orderController.AddOrder(createOrders[0]);
             await orderController.AddOrder(createOrders[1]);
-            // Действие
 
             var result = await orderController.GetOrdersForUser(user.ID);
 
-            // Утверждения
             var actualResult = result as OkObjectResult;
             Assert.IsNotNull(actualResult);
             var list = actualResult.Value as List<RequestOrders>;
@@ -327,7 +290,6 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task SuccessfullyListOrdersOfDeliveryman_ReturnOk200CodeWithList()
         {
-            // Подготовка
             var orderController = new OrdersController(_ctx);
             var deliveryman = _ctx.Users.First(u => u.Person.post.Post == Posts.DELIVERYMAN);
             var users = _ctx.Users.Where(u => u.Person.post.Post == Posts.USER).ToList();
@@ -370,10 +332,8 @@ namespace DeliveryNetworkAPI.Controllers.Tests
             }
             _ctx.SaveChanges();
 
-            // Действие
             var result = await orderController.GetOrdersForDeliveryMan(deliveryman.ID);
 
-            // Утверждения
             var actualResult = result as OkObjectResult;
             Assert.IsNotNull(actualResult);
             Assert.AreEqual(200, actualResult.StatusCode);
@@ -388,7 +348,6 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task SuccessfullyAddExecturoToOrder_ReturnOk200Code()
         {
-            // Arrangement
             var deliveryman = _ctx.Users.First(u => u.Person.post.Post == Posts.DELIVERYMAN);
             Assert.IsNotNull(deliveryman);
 
@@ -410,11 +369,8 @@ namespace DeliveryNetworkAPI.Controllers.Tests
             _ctx.SaveChanges();
             var reqOrder = new RequestOrders { Executor = deliveryman.Login };
             var orderController = new OrdersController(_ctx);
-
-            // Act
             var result = await orderController.AddExecutor(order.ID, reqOrder);
 
-            // Assert
             var actualResult = result as OkObjectResult;
             Assert.IsNotNull(actualResult);
             Assert.AreEqual(200, actualResult.StatusCode);
@@ -425,7 +381,6 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task SuccessfullyGetAddresForDeliveryman_ReturnOk200Code()
         {
-            // Arrangement
             var deliveryman = _ctx.Users.First(u => u.Person.post.Post == Posts.DELIVERYMAN);
             Assert.IsNotNull(deliveryman);
 
@@ -457,10 +412,8 @@ namespace DeliveryNetworkAPI.Controllers.Tests
 
             await orderController.AddExecutor(order.ID, reqOrder);
 
-            // Act
             var result = await orderController.GetAddressForDeliveryMan(deliveryman.ID);
 
-            // Assert
             var actualResult = result as OkObjectResult;
             Assert.IsNotNull(actualResult);
             Assert.AreEqual(200, actualResult.StatusCode);
@@ -474,7 +427,6 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task SuccessfultCompleteOrder_Return200OkCode()
         {
-            // Arrangement
             var deliveryman = _ctx.Users.First(u => u.Person.post.Post == Posts.DELIVERYMAN);
             Assert.IsNotNull(deliveryman);
 
@@ -498,10 +450,8 @@ namespace DeliveryNetworkAPI.Controllers.Tests
             var orderController = new OrdersController(_ctx);
             await orderController.AddExecutor(order.ID, reqOrder);
 
-            // Act
             var result = await orderController.CompleteOrder(order.ID, reqOrder);
 
-            // Assert
             var actualResult = result as OkObjectResult;
             Assert.IsNotNull(actualResult);
             Assert.AreEqual(200, actualResult.StatusCode);
