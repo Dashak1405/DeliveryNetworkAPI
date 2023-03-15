@@ -34,7 +34,6 @@ namespace DeliveryNetworkAPI.Controllers.Tests
             var confBuilder = new ConfigurationBuilder().AddJsonFile($"appsettings.json", optional: false);
             var authConf = confBuilder.Build().GetSection("Auth");
 
-            // Удостовериться, что должности добавились
             var posts = _ctx.Posts.ToList();
             Assert.AreEqual(3, posts.Count());
             Assert.AreEqual("user", posts[0].Post);
@@ -62,14 +61,11 @@ namespace DeliveryNetworkAPI.Controllers.Tests
         [TestMethod()]
         public async Task GetAllProductsTest()
         {
-            // Arrangment
             var prodController = new ProductsController(_ctx);
 
-            // Act
             var result = await prodController.GetAllProducts();
             var actualResult = result as OkObjectResult;
             
-            //Assertments
             Assert.IsNotNull(actualResult);
             Assert.AreEqual(200, actualResult.StatusCode);
 
