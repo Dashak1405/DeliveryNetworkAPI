@@ -41,14 +41,12 @@ namespace DeliveryNetworkAPI.Controllers.Tests
             _authOpts.Value.Secret = authConf["Secret"];
             _authOpts.Value.TokenLifetime = Int32.Parse(authConf["TokenLifetime"]);
             
-            // Удостовериться, что должности добавились
             var posts = _ctx.Posts.ToList();
             Assert.AreEqual(3, posts.Count());
             Assert.AreEqual("user", posts[0].Post);
             Assert.AreEqual("admin", posts[1].Post);
             Assert.AreEqual("deliveryman", posts[2].Post);
 
-            // Добавим пользователей
             var userController = new UsersController(_ctx);
             await userController.AddUser(_creatingUsers[0]);
             await userController.AddUser(_creatingUsers[1]);
